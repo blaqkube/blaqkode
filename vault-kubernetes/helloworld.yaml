@@ -12,7 +12,7 @@ metadata:
   namespace: default
 spec:
   containers:
-  - image: debian:9.7
+  - image: debian:10
     name: helloworld
     command:
       - /bin/bash

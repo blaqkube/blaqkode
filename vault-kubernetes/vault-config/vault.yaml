@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: vault
-        image: vault:1.4.3
+        image: vault
         args:
         - server
         ports:
@@ -47,6 +47,8 @@ spec:
         env:
         - name: VAULT_LOCAL_CONFIG
           value: '{"storage": {"file": {"path": "/vault/file"}},"listener":{"tcp":{"address":"0.0.0.0:8200","tls_disable":1}},"api_addr": "http://vault:8200"}'
+        - name: VAULT_ADDR
+          value: http://127.0.0.1:8200
   volumeClaimTemplates:
   - metadata:
       name: vault-data
