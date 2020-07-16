@@ -3,7 +3,15 @@ kind: Kustomization
 namespace: default
 resources:
 - vault.yaml
+- mysql.yaml
+secretGenerator:
+- name: mysql
+  env: mysql.env
+  type: Opaque
 images:
+- name: mysql
+  newName: mysql
+  newTag: 8.0.21
 - name: vault
   newName: vault
   newTag: 1.4.3
