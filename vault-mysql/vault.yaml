@@ -31,22 +31,24 @@ spec:
     spec:
       containers:
       - name: vault
-        image: vault:1.4.3
+        image: vault
+        args:
+        - server
         ports:
         - containerPort: 8200
           name: web
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
         volumeMounts:
-        - name: vault-config
-          mountPath: /etc/vault
         - name: vault-data
-          mountPath: /lib/vault
-      volumes:
-      - name: config-vault
-        configMap:
-          name: vault
-          items:
-            - key: vault.hcl
-              path: vault.hcl
+          mountPath: /vault/file
+        env:
+        - name: VAULT_LOCAL_CONFIG
+          value: '{"storage": {"file": {"path": "/vault/file"}},"listener":{"tcp":{"address":"0.0.0.0:8200","tls_disable":1}},"api_addr": "http://vault:8200"}'
+        - name: VAULT_ADDR
+          value: http://127.0.0.1:8200
   volumeClaimTemplates:
   - metadata:
       name: vault-data
@@ -55,26 +57,3 @@ spec:
       resources:
         requests:
           storage: 500Mi
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: vault
-data:
-  vault.hcl: |
-    listener "tcp" {
-      address     = "0.0.0.0:8200"
-      tls_disabled = 1
-    }
-
-    api_addr = "http://vault:8200"
-
-    storage "file" {
-      path = "/lib/vault"
-    }
-
-    telemetry {
-      prometheus_retention_time = "48h",
-      disable_hostname = true
-    }
-
