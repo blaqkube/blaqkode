@@ -1,0 +1,5 @@
+/target/**
+!/target
+!/target/wasm32-unknown-unknown
+!/target/wasm32-unknown-unknown/release
+!/target/wasm32-unknown-unknown/release/simple.wasm
