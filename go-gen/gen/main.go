@@ -2,31 +2,51 @@ package main
 
 import (
 	"fmt"
-	"log"
-
 	"go/ast"
-	"go/importer"
 	"go/parser"
 	"go/token"
-	"go/types"
 )
 
 func main() {
+	// borrowed from https://github.com/lukehoban/go-outline/blob/master/main.go#L54-L107
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "main.go", nil, 0)
+	parserMode := parser.ParseComments
+	var fileAst *ast.File
+	var err error
+
+	fileAst, err = parser.ParseFile(fset, "main.go", nil, parserMode)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
-	conf := types.Config{Importer: importer.Default()}
-	pkg, err := conf.Check("", fset, []*ast.File{f}, nil)
-	if err != nil {
-		log.Fatal(err) // type error
+	for _, d := range fileAst.Decls {
+		switch decl := d.(type) {
+		case *ast.FuncDecl:
+			fmt.Println("Func")
+		case *ast.GenDecl:
+			for _, spec := range decl.Specs {
+				switch spec := spec.(type) {
+				case *ast.ImportSpec:
+					fmt.Println("Import", spec.Path.Value)
+				case *ast.TypeSpec:
+					fmt.Println("Type", spec.Name.String())
+				case *ast.ValueSpec:
+					for _, id := range spec.Names {
+						fmt.Printf("variable: %s (variable[%d:%d] %v)\n",
+							id.Name,
+							id.Pos(),
+							id.End(),
+						)
+					}
+						for k, _ := spec.Values {
+							fmt.Printf("%v\n", k)
+						}
+				default:
+					fmt.Printf("Unknown token type: %s\n", decl.Tok)
+				}
+			}
+		default:
+			fmt.Printf("Unknown declaration @\n", decl.Pos())
+		}
 	}
-
-	fmt.Printf("Package  %q\n", pkg.Path())
-	fmt.Printf("Name:    %s\n", pkg.Name())
-	fmt.Printf("Imports: %s\n", pkg.Imports())
-	fmt.Printf("Scope:   %s\n", pkg.Scope())
 }
