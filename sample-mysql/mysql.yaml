@@ -3,6 +3,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: mysql
+  labels:
+    monitoring: enabled
 ---
 apiVersion: v1
 kind: Service

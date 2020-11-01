@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: mysql
+  namespace: mysql
+  labels:
+    team: database
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  podMetricsEndpoints:
+  - port: prometheus
