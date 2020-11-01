@@ -29,4 +29,3 @@ kubectl patch prometheus/prometheus -n prometheus \
 "
 ```
 
-
